@@ -62,6 +62,7 @@ script_ref_pilot = '04_generate_ref_pilot.py'
 script_bed = '05_bayesian_decompo.py'
 script_svm_train_val = '06_svm_train_val.py'
 script_list = [script_bam2tsv, script_extract_edm, script_merge_edm, script_ref_pilot, script_bed, script_svm_train_val]
+scripts = None      # update by check_scripts_available
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
@@ -75,11 +76,27 @@ def parse_args():
     parser.add_argument("-p", "--processes", type=int, default=10, help="Number of processes [default: 10]")
     return parser.parse_args()
 
-def check_scripts_available():
-    """Check if required external scripts are available in PATH."""
+def check_scripts_available(script_list: list):
+    """
+    Check if required scripts are available.
+    Priority: 1. Current script's directory 2. System PATH
+    """
+    bin_dir: Path = Path(__file__).parent.resolve() / 'bin'
+
+    found_scripts = {}
     for script in script_list:
-        if shutil.which(script) is None:
-            raise FileNotFoundError(f"Required script '{script}' not found in PATH")
+        local_path: Path = bin_dir / script
+        
+        if local_path.exists() and os.access(local_path, os.X_OK):
+            found_scripts[script] = str(local_path)
+        else:
+            system_path = shutil.which(script)
+            if system_path:
+                found_scripts[script] = system_path
+            else:
+                raise FileNotFoundError(f"Required script '{script}' not found in '{bin_dir}' or system PATH.")
+
+    return found_scripts
         
 def detect_file_type(dir_path):
     """Detect if directory contains BAM or TSV files."""
@@ -99,7 +116,7 @@ def bam2tsv(bam_dir, tsv_dir, processes=20):
         sample_id = bam_file.stem
         tsv_file = os.path.join(tsv_dir, f"{sample_id}.tsv")
 
-        cmd_args = [script_bam2tsv, bam_file, tsv_file, '-p', str(processes)]
+        cmd_args = [scripts[script_bam2tsv], bam_file, tsv_file, '-p', str(processes)]
         logger.info(f"Converting {bam_file}")
         subprocess.run(cmd_args, check=True)
 
@@ -109,24 +126,24 @@ def extract_EDM(frag_dir, out_dir, tb_file, processes=20):
     for frag_file in Path(frag_dir).rglob("*.tsv*"):
         sample_id = frag_file.name.split('.tsv')[0]
         out_file = os.path.join(out_dir, f"{sample_id}.tsv")
-        cmd_args = [script_extract_edm, frag_file, tb_file, out_file, '-p', str(processes)]
+        cmd_args = [scripts[script_extract_edm], frag_file, tb_file, out_file, '-p', str(processes)]
         subprocess.run(cmd_args, check=True)
 
 def merge_EDM(sample_edm_dir, edm_file, mds_file):
     """Merge sample end-motif features and compute MDS features."""
-    cmd_args = [script_merge_edm, sample_edm_dir, '--merged_output', edm_file, '--mds_output', mds_file]
+    cmd_args = [scripts[script_merge_edm], sample_edm_dir, '--merged_output', edm_file, '--mds_output', mds_file]
     subprocess.run(cmd_args, check=True)
 
 def generate_ref_and_pilot(edm_file, info_file, id_col, label_col, ref_out, pilot_out):
     """Generate reference background and pilot dataset."""
-    cmd_args = [script_ref_pilot, edm_file, info_file, '--id_col', id_col, '--label_col', label_col, 
+    cmd_args = [scripts[script_ref_pilot], edm_file, info_file, '--id_col', id_col, '--label_col', label_col, 
                 '--ref_out', ref_out, '--pilot_out', pilot_out]
     subprocess.run(cmd_args, check=True)
 
 
 def BED_func(edm_file, ref_file, out_dir, pilot=False, processes=20):
     """Run Bayesian End-motif Decomposition (BED)."""
-    cmd_args = [script_bed, edm_file, ref_file, out_dir, '-p', str(processes)]
+    cmd_args = [scripts[script_bed], edm_file, ref_file, out_dir, '-p', str(processes)]
     if pilot: cmd_args.append('--pilot')
     subprocess.run(cmd_args, check=True)
     
@@ -137,13 +154,13 @@ def SVM_train_val(feature_file, train_info_file, val_info_file, out_dir):
     model_dir = os.path.join(out_dir, "models")
 
     # Train mode
-    cmd_args = [script_svm_train_val, feature_file, train_info_file, train_score_file, 
+    cmd_args = [scripts[script_svm_train_val], feature_file, train_info_file, train_score_file, 
                 '--model_dir', model_dir, '--mode', 'train']
     subprocess.run(cmd_args, check=True)
 
     # Validate mode (if validation file provided)
     if val_info_file is not None:
-        cmd_args = [script_svm_train_val, feature_file, val_info_file, val_score_file, 
+        cmd_args = [scripts[script_svm_train_val], feature_file, val_info_file, val_score_file, 
                     '--model_dir', model_dir, '--mode', 'validate']
         subprocess.run(cmd_args, check=True)
 
@@ -159,7 +176,8 @@ def main():
     id_col, label_col = args.id_col, args.label_col
 
     # Check if required scripts are available
-    check_scripts_available()
+    global scripts
+    scripts = check_scripts_available(script_list)
 
     # Convert BAM to TSV if necessary
     if detect_file_type(input_dir) == 'bam':
