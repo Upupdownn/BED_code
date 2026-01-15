@@ -1,0 +1,11 @@
+id	label	type	type_map	stage	stage_map
+test_01	0	Healthy	0		0
+test_02	0	Healthy	0		0
+test_03	0	Benign	2		0
+test_04	0	Benign	2		0
+test_05	0	Benign	2		0
+test_06	1	Cancer	3		0
+test_07	1	Cancer	3		0
+test_08	1	Cancer	3		0
+test_09	1	Cancer	3		0
+test_10	1	Cancer	3		0
