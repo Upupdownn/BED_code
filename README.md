@@ -39,7 +39,7 @@ We recommend using Conda to manage the environment; while the pipeline is fully 
 
 ```bash
 # Clone the repository
-git clone [https://github.com/Upupdownn/BED_code.git](https://github.com/Upupdownn/BED_code.git)
+git clone https://github.com/Upupdownn/BED_code.git
 cd BED_code
 
 # Create the environment
