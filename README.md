@@ -128,13 +128,13 @@ After a successful run, the output_dir will contain:
 
 | Script | Documentation (Click to view) |
 | :--- | :--- |
-| `01_bam_to_tsv.py` | [View Details](docs/01_bam_to_tsv.md) |
-| `02_extract_edm_features.py` | [View Details](docs/02_extract_edm_features.md) |
-| `03_merge_edm_features.py` | [View Details](docs/03_merge_edm_features.md) |
-| `04_generate_ref_pilot.py` | [View Details](docs/04_generate_ref_pilot.md) |
-| `05_bayesian_decompo.py` | [View Details](docs/05_bayesian_decompo.md) |
-| `06_svm_train_val.py` | [View Details](docs/06_svm_train_val.md) |
-| `07_plot.py` | [View Details](docs/07_plot.md) |
+| `bin/01_bam_to_tsv.py` | [View Details](docs/01_bam_to_tsv.md) |
+| `bin/02_extract_edm_features.py` | [View Details](docs/02_extract_edm_features.md) |
+| `bin/03_merge_edm_features.py` | [View Details](docs/03_merge_edm_features.md) |
+| `bin/04_generate_ref_pilot.py` | [View Details](docs/04_generate_ref_pilot.md) |
+| `bin/05_bayesian_decompo.py` | [View Details](docs/05_bayesian_decompo.md) |
+| `bin/06_svm_train_val.py` | [View Details](docs/06_svm_train_val.md) |
+| `bin/07_plot.py` | [View Details](docs/07_plot.md) |
 
 
 ## Contacts

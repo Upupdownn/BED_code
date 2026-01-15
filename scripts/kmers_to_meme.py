@@ -1,37 +1,74 @@
-#!/home/shengxinwei/miniconda3/envs/finale/bin/python3.10
+#!/usr/bin/env python3
+"""
+Convert a list of k-mers (one per line) into a MEME motif file format.
+Each k-mer is treated as a separate motif with a deterministic PWM (1.0 at the matching base, 0.0 elsewhere).
+
+Usage:
+    ./kmer_to_meme.py kmers.txt motifs.meme
+"""
+
 import argparse
+from pathlib import Path
+import logging
 
-parser = argparse.ArgumentParser()
-parser.add_argument("kmer_list_file")
-parser.add_argument("meme_out_file")
-cmd_args = parser.parse_args()
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
 
-kmers_file = cmd_args.kmer_list_file   # 每行一个6-mer, 例如 "ACGTGA"
-out_meme = cmd_args.meme_out_file
+def parse_args():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("kmer_list_file", type=Path, help="Input file: one uppercase k-mer per line")
+    parser.add_argument("meme_out_file", type=Path, help="Output MEME file path")
 
-alphabet = ["A","C","G","T"]
+    return parser.parse_args()
 
-def kmer_to_pwm(kmer):
-    '''给定一个kmer，输出PWM矩阵'''
-    rows = []
-    for ch in kmer:
-        row = [ "1.0" if ch == b else "0.0" for b in alphabet ]
-        rows.append(row)
-    return rows
+def kmer_to_pwm(kmer: str, alphabet: str = "ACGT") -> list[list[str]]:
+    """Convert a single k-mer into a PWM matrix."""
+    return [["1.0" if base == ch else "0.0" for base in alphabet] for ch in kmer]
 
-with open(kmers_file) as fin, open(out_meme,"w") as fo:
-    fo.write("MEME version 4\n\nALPHABET= ACGT\n\n")
-    fo.write("strands: + -\n\n")
-    fo.write("Background letter frequencies\nA 0.25 C 0.25 G 0.25 T 0.25\n\n")
-    for line in fin:
-        k = line.strip().upper()
-        if not k: continue
-        fo.write(f"MOTIF {k}\n")
-        # alength:字母表长度，w:motif长度，nsites:motif由多少序列组成，E:motif期望值(均为注释)
-        fo.write(f"letter-probability matrix: alength= 4 w= {len(k)} nsites= 1 E= 0\n")
-        pwm = kmer_to_pwm(k)
-        for row in pwm:
-            fo.write(" ".join(row) + "\n")
-        fo.write("\n")
 
-print("Wrote", out_meme)
+def main():
+    args = parse_args()
+
+    alphabet = "ACGT"
+    header = [
+        "MEME version 4",
+        "",
+        "ALPHABET= ACGT",
+        "",
+        "strands: + -",
+        "",
+        "Background letter frequencies",
+        "A 0.25 C 0.25 G 0.25 T 0.25",
+        "",
+    ]
+
+    with args.kmer_list_file.open() as fin, args.meme_out_file.open("w") as fo:
+        # Write header once
+        fo.write("\n".join(header) + "\n")
+
+        motif_count = 0
+        for line in fin:
+            kmer = line.strip().upper()
+            if not kmer or len(kmer) == 0:
+                continue
+
+            if not all(base in alphabet for base in kmer):
+                logging.info(f"Warning: skipping invalid k-mer: {kmer}")
+                continue
+
+            motif_count += 1
+
+            # Write motif block
+            fo.write(f"MOTIF {kmer}\n")
+            fo.write(f"letter-probability matrix: alength= 4 w= {len(kmer)} nsites= 1 E= 0\n")
+
+            pwm = kmer_to_pwm(kmer, alphabet)
+            for row in pwm:
+                fo.write(" ".join(row) + "\n")
+            fo.write("\n")
+
+    logging.info(f"Done. Wrote {motif_count} motifs to {args.meme_out_file}")
+
+
+if __name__ == "__main__":
+    main()
