@@ -27,6 +27,7 @@ def parse_args():
 
 def compute_mds(x: np.ndarray):
     """Calculate Motif Diversity Score (MDS) as normalized Shannon entropy."""
+    x = x.astype(float)
     if x.ndim == 1: x = x.reshape((1, -1))
     res = np.sum(-x * np.log(x, out=np.zeros_like(x), where=(x > 1e-9)), axis=1)
     res /= np.log(x.shape[1])

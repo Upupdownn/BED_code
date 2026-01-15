@@ -69,10 +69,30 @@ class Utils():
         return df
     
     @staticmethod
-    def get_seq(tbfile, chrom, start, end, close=False, check=False):
+    def get_seq(tbfile, chrom:str, start, end, close=False, check=False):
         """Safely fetch sequence."""
+        target_chrom = chrom
         try:
-            seq = tbfile.sequence(chrom, start, end)
+            if hasattr(tbfile, 'chroms'):
+                available = tbfile.chroms()
+            elif hasattr(tbfile, 'references'):
+                available = tbfile.references
+            else:
+                available = []
+
+            if available and chrom not in available:
+                if chrom.startswith("chr"):
+                    alt_chrom = chrom[3:]
+                else:
+                    alt_chrom = f"chr{chrom}"
+                
+                if alt_chrom in available:
+                    target_chrom = alt_chrom
+        except Exception:
+            pass
+
+        try:
+            seq = tbfile.sequence(target_chrom, start, end)
         except Exception as e:
             seq = "N" * (end - start)
 
