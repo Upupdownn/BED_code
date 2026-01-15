@@ -138,13 +138,10 @@ After a successful run, the output_dir will contain:
 
 
 ## Contacts
-待补充
 
-## Citation
-待补充
+If you have any questions or feedback, please contact us at:
 
-## Acknowledgements
-待补充
+**Email**: upupdownn@gmail.com
 
 ## Software License
-待补充
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
