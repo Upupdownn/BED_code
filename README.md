@@ -2,16 +2,16 @@
 
 ## Description
 
-**Bayesian End-motif Decomposition (BED)** is a latent variable probabilistic framework designed to resolve "signal submergence" and cross-cohort instability (such as "direction flipping") in cfDNA end-motif analysis. Built on the **"cfDNA mixture hypothesis",** BED mathematically separates the dominant physiological background from trace tumor-associated aberrant signals to achieve effective "signal purification".
+**Bayesian End-motif Decomposition (BED)** is a latent variable probabilistic framework designed to address signal obscuration and cross-cohort instability in cfDNA end-motif analysis. Based on the **cfDNA mixture hypothesis**, BED separates observed EDM profiles into dominant physiological background and tumor-associated aberrant components to derive purified aberrant features for robust cancer detection.
 
 ## Overview
-![Pipeline Diagram](assets/workflow.svg)
+![Pipeline Diagram](assets/workflow.png)
 
 The BED workflow is an integrated pipeline designed for:
 1. **Feature Extraction**: Efficiently extracting end-motif (4-mer) frequencies from cfDNA fragments.
-2. **Bayesian Decomposition**: Decomposing raw motif signals into aberrant (cancer-associated) and background components.
-3. **Machine Learning**: Training and validating SVM classifiers on both raw and decomposed features.
-4. **Validation**: Evaluating model performance on independent validation cohorts.
+2. **Bayesian Decomposition**: Separating observed EDM profiles into physiological background and aberrant components to derive purified aberrant features.
+3. **Machine Learning**: Training and evaluating SVM classifiers using both raw EDM frequencies and purified aberrant features.
+4. **Validation**: Assessing diagnostic performance and robustness across independent validation cohorts.
 
 
 
@@ -124,17 +124,8 @@ After a successful run, the output_dir will contain:
 
 * `pilot/`: Results from the learning rate search and pilot decomposition.
 
-## Sub-scripts Documentation
-
-| Script | Documentation (Click to view) |
-| :--- | :--- |
-| `bin/01_bam_to_tsv.py` | [View Details](docs/01_bam_to_tsv.md) |
-| `bin/02_extract_edm_features.py` | [View Details](docs/02_extract_edm_features.md) |
-| `bin/03_merge_edm_features.py` | [View Details](docs/03_merge_edm_features.md) |
-| `bin/04_generate_ref_pilot.py` | [View Details](docs/04_generate_ref_pilot.md) |
-| `bin/05_bayesian_decompo.py` | [View Details](docs/05_bayesian_decompo.md) |
-| `bin/06_svm_train_val.py` | [View Details](docs/06_svm_train_val.md) |
-| `bin/07_plot.py` | [View Details](docs/07_plot.md) |
+## Sub-scripts Usage
+All scripts are located in the scripts and bin directories. Each script provides a command-line help message and can be inspected using the `-h` parameter.
 
 
 ## Contacts
