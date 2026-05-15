@@ -9,9 +9,10 @@
 
 The BED workflow is an integrated pipeline designed for:
 1. **Feature Extraction**: Efficiently extracting end-motif (4-mer) frequencies from cfDNA fragments.
-2. **Bayesian Decomposition**: Separating observed EDM profiles into physiological background and aberrant components to derive purified aberrant features.
-3. **Machine Learning**: Training and evaluating SVM classifiers using both raw EDM frequencies and purified aberrant features.
-4. **Validation**: Assessing diagnostic performance and robustness across independent validation cohorts.
+2. **Bayesian Decomposition**: Separating observed EDM profiles into physiological background and aberrant components to derive purified aberrant features together with a training-free Aberrant Weight (AW) indicator for aberrant signal quantification.
+3. **Cancer Detection**: Training and evaluating SVM classifiers using both raw EDM frequencies and purified aberrant features for robust cancer detection.
+4. **Cross-Cohort Validation**: Assessing diagnostic consistency and robustness across independent validation cohorts.
+5. **Downstream Analysis**: Supporting tissue-of-origin localization, prognostic analysis, and biological interpretation of aberrant EDM patterns.
 
 
 
